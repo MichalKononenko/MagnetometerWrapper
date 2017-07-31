@@ -1,0 +1,26 @@
+sudo: required
+
+language: python
+
+cache:
+  - pip
+
+python:
+  - "3.4"
+  - "3.5"
+  - "3.6"
+
+notifications:
+  email: false
+
+install:
+  - cd $TRAVIS_BUILD_DIR
+  - pip install -r requirements.txt
+  - pip install .
+
+script:
+  - nosetests ./tests/unit --with-coverage # Run unit tests
+
+after_success:
+  - coveralls
+
