@@ -50,7 +50,7 @@ class SerialCommunicator(
         self._serial.close()
 
     def read(self) -> str:
-        character = self._serial.read().decode('utf-8')
+        character = self._serial.read().decode('utf-8', errors='strict')
         log.debug('Read character %s from port %s', character, self._serial)
         return character
 

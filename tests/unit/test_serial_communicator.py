@@ -3,7 +3,7 @@ import unittest.mock as mock
 from serial import Serial
 from magnetometer_wrapper.serial_communicator import SerialCommunicator
 from hypothesis import given
-from hypothesis.strategies import text, sampled_from, integers
+from hypothesis.strategies import text, sampled_from, integers, characters
 
 
 class TestSerialCommunicator(unittest.TestCase):
@@ -39,6 +39,13 @@ class TestRead(TestSerialCommunicator):
             self.serial.read(),
             self.serial_port.read().decode('utf-8')
         )
+
+    @given(characters())
+    def test_read_binary_input(self, character: str):
+        self.serial_port.read = mock.MagicMock(
+            return_value=character.encode('utf-8')
+        )
+        self.assertEqual(self.serial.read(), character)
 
 
 class TestWrite(TestSerialCommunicator):

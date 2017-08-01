@@ -134,8 +134,9 @@ class DeviceCommunicator(Iterable, metaclass=abc.ABCMeta):
         """
         raise NotImplementedError()
 
+    @property
     @abc.abstractmethod
-    def __str__(self) -> str:
+    def message(self) -> str:
         """
         Read data coming in up to the termination characters, returning the
         message as a string

@@ -2,7 +2,10 @@ import unittest
 import unittest.mock as mock
 from magnetometer_wrapper.abstract_classes import AbstractDeviceCommunicator
 from hypothesis import given
-from hypothesis.strategies import text
+from hypothesis.strategies import text, binary
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
 
 
 class TestAbstractDeviceCommunicator(unittest.TestCase):
@@ -80,7 +83,8 @@ class TestQuery(TestAbstractDeviceCommunicator):
     def test_query_good_write(
             self, message_to_write: str, message_to_read: str
     ) -> None:
-        self.communicator.data_to_read = message_to_read + self.terminator
+        data_to_read = message_to_read + self.terminator
+        self.communicator.data_to_read = data_to_read
         result = self.communicator.query(message_to_write)
         self.assertEqual(message_to_write, self.communicator.buffer)
         self.assertEqual(message_to_read, result)
@@ -118,3 +122,19 @@ class TestExit(TestAbstractDeviceCommunicator):
             self.assertTrue(self.communicator.mock_port.open.called)
             self.communicator.is_open = False
         self.assertFalse(self.communicator.mock_port.close.called)
+
+
+class TestIter(TestAbstractDeviceCommunicator):
+    def setUp(self):
+        TestAbstractDeviceCommunicator.setUp(self)
+        self.communicator = self.ConcreteDeviceCommunicator(terminator='\r\n')
+
+    @given(text())
+    def test_iter(self, read_data: str):
+        data_to_read = read_data + self.communicator.termination_characters
+        self.communicator.data_to_read = data_to_read
+        with self.communicator:
+            data_from_device = ''.join(
+                char for char in self.communicator
+            )
+        self.assertEqual(data_to_read, data_from_device)

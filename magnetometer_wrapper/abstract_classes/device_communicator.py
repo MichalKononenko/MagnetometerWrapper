@@ -54,25 +54,27 @@ class AbstractDeviceCommunicator(
     def query(self, message: str) -> str:
         with self:
             self.write(message)
-            return str(self)
+            return self.message
 
     def __enter__(self) -> None:
         if not self.is_open:
+            log.debug('Opening port %s', self)
             self.open()
 
     def __exit__(self, exc_type, exc_val, exc_tb) -> None:
         if self.is_open:
+            log.debug('Closing port %s', self)
             self.close()
 
     def __iter__(self) -> Iterator[str]:
         last_characters_read = deque(maxlen=len(self.termination_characters))
-        with self:
-            while self._should_keep_reading(last_characters_read):
-                new_char = self.read()
-                last_characters_read.append(new_char)
-                yield new_char
+        while self._should_keep_reading(last_characters_read):
+            new_char = self.read()
+            last_characters_read.append(new_char)
+            yield new_char
 
-    def __str__(self) -> Optional[str]:
+    @property
+    def message(self) -> Optional[str]:
         result_string = ''.join(iter(self))
         log.info('Read message %s from port %s', result_string, self)
         result = self._everything_but_terminator_regex.match(
@@ -92,6 +94,11 @@ class AbstractDeviceCommunicator(
 
     @property
     def _everything_but_terminator_regex(self):
-        return re.compile(r'^(.|\n|\r)*(?={0}$)'.format(
+        return re.compile(r'^(.|\n)*(?={0}$)'.format(
             self.termination_characters)
+        )
+
+    def __repr__(self) -> str:
+        return '%s(port=%s, termination_characters=%s)' % (
+            self.__class__.__name__, self.port, self.termination_characters
         )
