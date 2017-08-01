@@ -28,6 +28,5 @@ class Magnetometer(object, metaclass=abc.ABCMeta):
         """
 
         :param new_unit: The new unit to use to measure the magnetic field
-        :return:
         """
         raise NotImplementedError()
