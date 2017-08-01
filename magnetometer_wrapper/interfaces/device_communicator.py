@@ -1,5 +1,4 @@
-from traceback import StackSummary
-from typing import Type, Iterator, Optional
+from typing import Type, Iterator, Optional, Any
 import abc
 from collections.abc import Iterable
 
@@ -101,7 +100,7 @@ class DeviceCommunicator(Iterable, metaclass=abc.ABCMeta):
             self,
             exc_type: Optional[Type[BaseException]],
             exc_val: Optional[BaseException],
-            exc_tb: Optional[StackSummary]
+            exc_tb: Optional[Any]
     ) -> None:
         """
 
