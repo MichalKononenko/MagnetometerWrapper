@@ -59,11 +59,9 @@ class DeviceCommunicator(Iterable, metaclass=abc.ABCMeta):
         """
         raise NotImplementedError()
 
+    @abc.abstractmethod
     def query(self, message: str) -> str:
-        with self:
-            self.write(message)
-            result = self.read()
-        return result
+        raise NotImplementedError()
 
     @abc.abstractmethod
     def close(self) -> None:

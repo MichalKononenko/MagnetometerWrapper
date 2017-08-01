@@ -47,7 +47,7 @@ class SerialCommunicator(
             SerialCommunicatorInterface.ParityBits.ODD,
             termination_characters: str='\r\n'
     ) -> None:
-        super(SerialCommunicator, self).__init__(termination_characters)
+        super(SerialCommunicator, self).__init__(port, termination_characters)
         self._serial = serial.Serial(
             port=port,
             baudrate=baud_rate,
@@ -65,6 +65,12 @@ class SerialCommunicator(
 
     def close(self):
         self._serial.close()
+
+    def read(self) -> str:
+        return self._serial.read()
+
+    def write(self, message: str) -> None:
+        self._serial.write(self._get_data_to_write(message))
 
     @property
     def parity_bits(self) -> SerialCommunicatorInterface.ParityBits:
@@ -114,3 +120,7 @@ class SerialCommunicator(
     @baud_rate.setter
     def baud_rate(self, new_baud: int) -> None:
         self._serial.baudrate = new_baud
+
+    def _get_data_to_write(self, message: str) -> bytes:
+        string_data = message + self.termination_characters
+        return string_data.encode('utf-8')
