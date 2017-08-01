@@ -1,3 +1,6 @@
+"""
+Contains an interface that describes how to perform device I/O.
+"""
 from typing import Type, Iterator, Optional, Any
 import abc
 from collections.abc import Iterable
@@ -135,9 +138,12 @@ class DeviceCommunicator(Iterable, metaclass=abc.ABCMeta):
 
     @property
     @abc.abstractmethod
-    def message(self) -> str:
+    def _last_read_message_from_device(self) -> str:
         """
         Read data coming in up to the termination characters, returning the
         message as a string
+
+        :return The string read from the device, minus any termination
+            characters
         """
         raise NotImplementedError()

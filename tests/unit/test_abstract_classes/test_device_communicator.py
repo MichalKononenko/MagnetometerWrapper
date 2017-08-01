@@ -2,7 +2,7 @@ import unittest
 import unittest.mock as mock
 from magnetometer_wrapper.abstract_classes import AbstractDeviceCommunicator
 from hypothesis import given
-from hypothesis.strategies import text, binary
+from hypothesis.strategies import text
 import logging
 
 logging.basicConfig(level=logging.DEBUG)
@@ -15,8 +15,15 @@ class TestAbstractDeviceCommunicator(unittest.TestCase):
     def setUp(self):
         self.communicator = self.ConcreteDeviceCommunicator()
 
+    def tearDown(self):
+        self.communicator.reset()
+
     class ConcreteDeviceCommunicator(AbstractDeviceCommunicator):
-        def __init__(self, port='foo', terminator=mock.MagicMock(spec=str)):
+        def __init__(
+                self,
+                port: str='foo',
+                terminator: str=mock.MagicMock(spec=str)
+        ):
             super(
                 TestAbstractDeviceCommunicator.ConcreteDeviceCommunicator,
                 self

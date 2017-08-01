@@ -1,5 +1,5 @@
 """
-Contains an interface for working with RS232 ports
+Describes how to work with RS232 ports. This interface
 """
 import serial
 from enum import Enum, unique

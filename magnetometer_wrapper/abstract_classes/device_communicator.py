@@ -54,7 +54,7 @@ class AbstractDeviceCommunicator(
     def query(self, message: str) -> str:
         with self:
             self.write(message)
-            return self.message
+            return self._last_read_message_from_device
 
     def __enter__(self) -> None:
         if not self.is_open:
@@ -74,7 +74,7 @@ class AbstractDeviceCommunicator(
             yield new_char
 
     @property
-    def message(self) -> Optional[str]:
+    def _last_read_message_from_device(self) -> Optional[str]:
         result_string = ''.join(iter(self))
         log.info('Read message %s from port %s', result_string, self)
         result = self._everything_but_terminator_regex.match(
