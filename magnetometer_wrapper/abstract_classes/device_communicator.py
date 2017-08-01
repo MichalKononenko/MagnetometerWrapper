@@ -1,3 +1,6 @@
+"""
+
+"""
 import abc
 from ..interfaces import DeviceCommunicator
 from typing import Iterator, Optional
@@ -85,7 +88,9 @@ class AbstractDeviceCommunicator(
         elif not result and result is not None:
             raise IOError('Unable to find termination characters in result')
         else:
-            raise IOError('Result is none')
+            raise IOError('Unable to find a match for the termination '
+                          'character regular expression. The result returned'
+                          'None')
 
     def _should_keep_reading(self, last_characters_read: deque) -> bool:
         return tuple(last_characters_read) != tuple(

@@ -1,3 +1,6 @@
+"""
+Describes how to work with a magnetometer
+"""
 import abc
 
 

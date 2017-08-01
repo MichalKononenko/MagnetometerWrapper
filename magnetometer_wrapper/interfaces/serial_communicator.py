@@ -1,5 +1,6 @@
 """
-Describes how to work with RS232 ports. This interface
+Describes how to work with RS232 ports. This interface extends the
+``DeviceCommunicator`` to work with devices working over an RS232 port.
 """
 import serial
 from enum import Enum, unique
@@ -73,7 +74,7 @@ class SerialCommunicator(DeviceCommunicator, metaclass=abc.ABCMeta):
         """
 
         :return: The current number of stop bits being used by the
-        communicator
+            communicator
         """
         raise NotImplementedError()
 
@@ -91,6 +92,7 @@ class SerialCommunicator(DeviceCommunicator, metaclass=abc.ABCMeta):
         """
 
         :return: The baud rate (digital signal frequency) in bits per second
+
         """
         raise NotImplementedError()
 
@@ -108,7 +110,7 @@ class SerialCommunicator(DeviceCommunicator, metaclass=abc.ABCMeta):
         """
 
         :return: The time that will have to elapse before the reading of a
-        character times out
+            character times out
         """
         raise NotImplementedError()
 
@@ -118,5 +120,6 @@ class SerialCommunicator(DeviceCommunicator, metaclass=abc.ABCMeta):
         """
 
         :param new_timeout: The desired timeout
+
         """
         raise NotImplementedError()
