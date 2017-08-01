@@ -32,7 +32,6 @@ class DeviceCommunicator(Iterable, metaclass=abc.ABCMeta):
             communicator is bound. For instance, if this communicator is bound
             to a serial port, the port could be set to something like
             ``/dev/ttyUSB0`` on Linux, or ``COM1`` on Windows.
-
         """
         raise NotImplementedError()
 
@@ -51,7 +50,6 @@ class DeviceCommunicator(Iterable, metaclass=abc.ABCMeta):
         """
 
         :param new_characters: The new termination characters
-
         """
         raise NotImplementedError()
 
@@ -67,7 +65,6 @@ class DeviceCommunicator(Iterable, metaclass=abc.ABCMeta):
         """
 
         :return: ``True`` if the port is open and ``False`` if not
-
         """
         raise NotImplementedError()
 
@@ -76,7 +73,6 @@ class DeviceCommunicator(Iterable, metaclass=abc.ABCMeta):
         """
 
         :return: A single character read from the device.
-
         """
         raise NotImplementedError()
 
@@ -85,7 +81,6 @@ class DeviceCommunicator(Iterable, metaclass=abc.ABCMeta):
         """
 
         :param message: The message to write without termination characters
-
         """
         raise NotImplementedError()
 
@@ -97,7 +92,6 @@ class DeviceCommunicator(Iterable, metaclass=abc.ABCMeta):
         :param message: The command to be sent to the device, without
             termination characters
         :return: The response from the device
-
         """
         raise NotImplementedError()
 
@@ -133,7 +127,6 @@ class DeviceCommunicator(Iterable, metaclass=abc.ABCMeta):
             ``None`` if no exception was thrown
         :param exc_tb: The stack trace of the exception that was thrown.
             ``None`` if no exception was thrown
-
         """
         raise NotImplementedError()
 
@@ -153,6 +146,5 @@ class DeviceCommunicator(Iterable, metaclass=abc.ABCMeta):
             should repeatedly call ``read`` until the termination characters
             are hit. This method is responsible for determining when to stop
             iteration.
-
         """
         raise NotImplementedError()

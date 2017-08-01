@@ -42,3 +42,12 @@ class LakeShore475(Magnetometer):
         :param new_unit: The new unit to be sets
         """
         self._communicator.query('UNITS {0}'.format(new_unit))
+
+    def __repr__(self) -> str:
+        """
+
+        :return: The Python code used to create the instance
+        """
+        return '%s(communicator=%s)' % (
+            self.__class__.__name__, self._communicator
+        )
