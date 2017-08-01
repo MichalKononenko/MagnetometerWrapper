@@ -11,6 +11,7 @@ Welcome to Magnetometer Wrapper's documentation!
    :caption: Contents:
 
    interfaces
+   implementations
 
 Indices and tables
 ==================
