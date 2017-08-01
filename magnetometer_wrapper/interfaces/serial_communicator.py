@@ -101,3 +101,22 @@ class SerialCommunicator(DeviceCommunicator, metaclass=abc.ABCMeta):
         :param new_baud: The desired baud rate
         """
         raise NotImplementedError()
+
+    @property
+    @abc.abstractmethod
+    def read_timeout(self) -> float:
+        """
+
+        :return: The time that will have to elapse before the reading of a
+        character times out
+        """
+        raise NotImplementedError()
+
+    @read_timeout.setter
+    @abc.abstractmethod
+    def read_timeout(self, new_timeout: int) -> None:
+        """
+
+        :param new_timeout: The desired timeout
+        """
+        raise NotImplementedError()

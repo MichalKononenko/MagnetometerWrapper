@@ -3,6 +3,9 @@ from ..interfaces import DeviceCommunicator
 from typing import Iterator, Optional
 from collections import deque
 import re
+import logging
+
+log = logging.getLogger(__name__)
 
 
 class AbstractDeviceCommunicator(
@@ -64,13 +67,14 @@ class AbstractDeviceCommunicator(
     def __iter__(self) -> Iterator[str]:
         last_characters_read = deque(maxlen=len(self.termination_characters))
         with self:
-            while not self._should_stop(last_characters_read):
+            while self._should_keep_reading(last_characters_read):
                 new_char = self.read()
                 last_characters_read.append(new_char)
                 yield new_char
 
     def __str__(self) -> Optional[str]:
         result_string = ''.join(iter(self))
+        log.info('Read message %s from port %s', result_string, self)
         result = self._everything_but_terminator_regex.match(
             result_string
         )
@@ -81,8 +85,8 @@ class AbstractDeviceCommunicator(
         else:
             raise IOError('Result is none')
 
-    def _should_stop(self, last_characters_read: deque) -> bool:
-        return tuple(last_characters_read) == tuple(
+    def _should_keep_reading(self, last_characters_read: deque) -> bool:
+        return tuple(last_characters_read) != tuple(
             self.termination_characters
         )
 

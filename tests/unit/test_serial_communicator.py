@@ -29,7 +29,7 @@ class TestIsOpen(TestSerialCommunicator):
     def test_is_open(self):
         self.assertEqual(
             self.serial.is_open,
-            self.serial_constructor().is_open
+            self.serial_port.isOpen()
         )
 
 
@@ -37,7 +37,7 @@ class TestRead(TestSerialCommunicator):
     def test_read(self):
         self.assertEqual(
             self.serial.read(),
-            self.serial_port.read()
+            self.serial_port.read().decode('utf-8')
         )
 
 
