@@ -60,7 +60,6 @@ class TestAbstractDeviceCommunicator(unittest.TestCase):
             self.buffer = message
 
         def reset(self):
-            self._port.reset_mock()
             self._is_open = False
             self._last_read_index = 0
 
