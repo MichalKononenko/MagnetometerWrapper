@@ -103,10 +103,12 @@ class DeviceCommunicator(Iterable, metaclass=abc.ABCMeta):
         raise NotImplementedError()
 
     @abc.abstractmethod
-    def __enter__(self) -> 'DeviceCommunicator':
+    def __enter__(self) -> None:
         """
 
-        Prepare the communicator for communicating with the device
+        Prepare the instance for communicating with the device. If
+        communication requires opening a port, it should be done here. At
+        the end of this method, all required hardware should be ready for I/O.
         """
         raise NotImplementedError()
 

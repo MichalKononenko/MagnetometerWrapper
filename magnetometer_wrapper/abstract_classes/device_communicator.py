@@ -20,7 +20,12 @@ class AbstractDeviceCommunicator(
     DeviceCommunicator, metaclass=abc.ABCMeta
 ):
     """
-    A partial implementation of a device communicator
+    Provides an incomplete implementation for I/O with a device that uses a
+    stateful port for communication.
+
+    Subclasses of this need to implement a method to open and close the port,
+    inspect the port's state, and read and write to the port. This class should
+    be able to handle the rest of the state management.
     """
     def __init__(self, port: str, termination_characters='\r\n'):
         """
