@@ -13,6 +13,6 @@ setup(
     url='https://github.com/MichalKononenko/MagnetometerWrapper',
     packages=find_packages(exclude=["tests", "tests.*"]),
     install_requires=[
-        "serial==3.4"    
+        "pyserial==3.4"
     ]
 )

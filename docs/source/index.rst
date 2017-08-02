@@ -10,7 +10,8 @@ Welcome to Magnetometer Wrapper's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-
+   interfaces
+   implementations
 
 Indices and tables
 ==================
