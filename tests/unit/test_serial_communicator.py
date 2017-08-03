@@ -71,7 +71,7 @@ class TestRead(TestSerialCommunicator):
         )
 
     @given(characters())
-    def test_read_binary_input(self, character: str):
+    def test_read_binary_input(self, character: str) -> None:
         """
 
         :param character: A randomly-generated character to be read from the
@@ -88,7 +88,12 @@ class TestWrite(TestSerialCommunicator):
     Contains unit tests for the ``write`` method of the serial communicator
     """
     @given(text())
-    def test_write(self, message: str):
+    def test_write(self, message: str) -> None:
+        """
+        Contains unit tests for the serial communicator's ``write`` method
+
+        :param message: A randomly-generated message to write
+        """
         self.serial.write(message)
 
         expected_bytes_written = (
@@ -102,17 +107,36 @@ class TestWrite(TestSerialCommunicator):
 
 
 class TestParityBits(TestSerialCommunicator):
+    """
+    Contains unit tests for the getter and setter of the ``ParityBits``
+    parameter
+    """
     @given(sampled_from(SerialCommunicator.ParityBits))
-    def test_parity_bits(self, parity: SerialCommunicator.ParityBits):
+    def test_parity_bits(self, parity: SerialCommunicator.ParityBits) -> None:
+        """
+
+        :param parity: The desired parity to set, and check for matching parity
+        """
         self.serial_port.parity = parity.value
-        comm = SerialCommunicator(self.port, parity_bits=parity,
-                                  serial_constructor=self.serial_constructor)
+        comm = SerialCommunicator(
+            self.port, parity_bits=parity,
+            serial_constructor=self.serial_constructor
+        )
         self.assertIs(comm.parity_bits, parity)
 
 
 class TestStopBits(TestSerialCommunicator):
+    """
+    Contains unit tests for the getter and setter parameters for the stop
+    bits parameter
+    """
     @given(sampled_from(SerialCommunicator.StopBits))
-    def test_stop_bits(self, stop_bits: SerialCommunicator.StopBits):
+    def test_stop_bits(self, stop_bits: SerialCommunicator.StopBits) -> None:
+        """
+        Tests that the stop bits are retrieved and set correctly
+
+        :param stop_bits: A randomly-generated stop bit parameter to set
+        """
         self.serial_port.stopbits = stop_bits.value
         comm = SerialCommunicator(
             self.port, stop_bits=stop_bits,
@@ -122,8 +146,17 @@ class TestStopBits(TestSerialCommunicator):
 
 
 class TestDataBits(TestSerialCommunicator):
+    """
+    Contains unit tests for the ``data_bits`` parameter in the serial
+    connection
+    """
     @given(sampled_from(SerialCommunicator.Databits))
-    def test_data_bits(self, data_bits: SerialCommunicator.Databits):
+    def test_data_bits(self, data_bits: SerialCommunicator.Databits) -> None:
+        """
+        Test that the data bits are set and retrieved correctly
+
+        :param data_bits: The desired data bits to set
+        """
         self.serial_port.bytesize = data_bits.value
         comm = SerialCommunicator(
             self.port, data_bits=data_bits,
@@ -133,8 +166,15 @@ class TestDataBits(TestSerialCommunicator):
 
 
 class TestBaudRate(TestSerialCommunicator):
+    """
+    Contains unit tests for the getter and setter for the baud rate parameter
+    """
     @given(integers())
-    def test_baud_rate(self, new_baud: int):
+    def test_baud_rate(self, new_baud: int) -> None:
+        """
+
+        :param new_baud: A randomly-generated baud rate to set
+        """
         self.serial.baud_rate = new_baud
         self.assertEqual(self.serial.baud_rate, new_baud)
         self.assertEqual(self.serial_port.baudrate, new_baud)
