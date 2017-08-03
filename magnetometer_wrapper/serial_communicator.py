@@ -5,7 +5,7 @@ over RS232.
 from .abstract_classes import AbstractDeviceCommunicator
 from .interfaces import SerialCommunicator as SerialCommunicatorInterface
 import serial
-from typing import Type
+from typing import Type, Dict
 import logging
 
 log = logging.getLogger(__name__)
@@ -15,8 +15,54 @@ class SerialCommunicator(
     AbstractDeviceCommunicator, SerialCommunicatorInterface
 ):
     """
-    Base class for serial communication
+    Base class for serial communication.
+
+    The three dictionaries ``_DATABITS_LOOKUP``, ``_STOPBITS_LOOKUP``,
+    and ``PARITY_LOOKUP`` are used to map the data bits, stop bits,
+    and parity scheme returned by the serial library, to the enums provided
+    in the interface. These dictionaries should not be changed unless the
+    underlying serial implementation changes as well.
     """
+
+    _DATABITS_LOOKUP = {
+        serial.EIGHTBITS: SerialCommunicatorInterface.Databits.EIGHT,
+        serial.SEVENBITS: SerialCommunicatorInterface.Databits.SEVEN,
+        serial.SIXBITS: SerialCommunicatorInterface.Databits.SIX,
+        serial.FIVEBITS: SerialCommunicatorInterface.Databits.FIVE
+    }  # type: Dict[int, SerialCommunicatorInterface.Databits]
+
+    _DATABITS_ENUM_LOOKUP = {
+        SerialCommunicatorInterface.Databits.EIGHT: serial.EIGHTBITS,
+        SerialCommunicatorInterface.Databits.SEVEN: serial.SEVENBITS,
+        SerialCommunicatorInterface.Databits.SIX: serial.SIXBITS,
+        SerialCommunicatorInterface.Databits.FIVE: serial.FIVEBITS
+    }
+
+    _STOPBITS_LOOKUP = {
+        serial.STOPBITS_ONE: SerialCommunicatorInterface.StopBits.ONE,
+        serial.STOPBITS_ONE_POINT_FIVE:
+            SerialCommunicatorInterface.StopBits.ONE_POINT_FIVE,
+        serial.STOPBITS_TWO: SerialCommunicatorInterface.StopBits.TWO
+    }  # type: Dict[int, SerialCommunicatorInterface.StopBits]
+
+    _STOPBITS_ENUM_LOOKUP = {
+        SerialCommunicatorInterface.StopBits.ONE: serial.STOPBITS_ONE,
+        SerialCommunicatorInterface.StopBits.ONE_POINT_FIVE:
+            serial.STOPBITS_ONE_POINT_FIVE,
+        SerialCommunicatorInterface.StopBits.TWO:
+            serial.STOPBITS_TWO
+    }
+
+    _PARITY_LOOKUP = {
+        serial.PARITY_EVEN: SerialCommunicatorInterface.ParityBits.EVEN,
+        serial.PARITY_ODD: SerialCommunicatorInterface.ParityBits.ODD
+    }  # type: Dict[int, SerialCommunicatorInterface.ParityBits]
+
+    _PARITY_ENUM_LOOKUP = {
+        SerialCommunicatorInterface.ParityBits.EVEN: serial.PARITY_EVEN,
+        SerialCommunicatorInterface.ParityBits.ODD: serial.PARITY_ODD
+    }
+
     def __init__(
             self,
             port: str,
@@ -50,9 +96,9 @@ class SerialCommunicator(
         self._serial = serial_constructor(
             port=port,
             baudrate=baud_rate,
-            bytesize=data_bits.value,
-            stopbits=stop_bits.value,
-            parity=parity_bits.value,
+            bytesize=self._DATABITS_ENUM_LOOKUP[data_bits],
+            stopbits=self._STOPBITS_ENUM_LOOKUP[stop_bits],
+            parity=self._PARITY_ENUM_LOOKUP[parity_bits],
             timeout=timeout
         )
 
@@ -104,7 +150,8 @@ class SerialCommunicator(
 
         :return: The parity bits
         """
-        return SerialCommunicator.ParityBits(self._serial.parity)
+        parity_bits = self._serial.parity
+        return self._PARITY_LOOKUP[parity_bits]
 
     @property
     def stop_bits(self) -> SerialCommunicatorInterface.StopBits:
@@ -112,7 +159,7 @@ class SerialCommunicator(
 
         :return: The stop bits
         """
-        return SerialCommunicator.StopBits(self._serial.stopbits)
+        return self._STOPBITS_LOOKUP[self._serial.stopbits]
 
     @property
     def data_bits(self) -> SerialCommunicatorInterface.Databits:
@@ -120,7 +167,8 @@ class SerialCommunicator(
 
         :return: The number of data bits
         """
-        return SerialCommunicator.Databits(self._serial.bytesize)
+        data_bits = self._serial.bytesize
+        return self._DATABITS_LOOKUP[data_bits]
 
     @property
     def baud_rate(self) -> int:

@@ -8,6 +8,7 @@ from magnetometer_wrapper.abstract_classes import AbstractDeviceCommunicator
 from hypothesis import given
 from hypothesis.strategies import text
 import logging
+import re
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -265,21 +266,48 @@ class TestIter(TestAbstractDeviceCommunicator):
         Set up a communicator with a realistic terminator
         """
         TestAbstractDeviceCommunicator.setUp(self)
-        self.communicator = self.ConcreteDeviceCommunicator(terminator='\r\n')
+        self.terminator = '\r\n'
+        self.communicator = self.ConcreteDeviceCommunicator(
+            terminator=self.terminator
+        )
 
     @given(text())
-    def test_iter(self, read_data: str):
+    def test_iter(self, message: str) -> None:
         """
+        Tests that the iterator returns a random message to be read,
+        less any termination characters
 
-        Test that iterating through the DeviceCommunicator will return all
-        the characters in the mock response, less any terminators.
-
-        :param read_data: The data to read from the fake device
+        :param message: The message that the iterator should read, character
+            by character
         """
-        data_to_read = read_data + self.communicator.termination_characters
+        data_to_read = message + self.terminator
         self.communicator.data_to_read = data_to_read
+
         with self.communicator:
-            data_from_device = ''.join(
-                char for char in self.communicator
-            )
-        self.assertEqual(data_to_read, data_from_device)
+            response = ''.join(char for char in self.communicator)
+
+        self.assertEqual(
+            self._get_characters_before_terminator(
+                message, self.terminator
+            ), response
+        )
+
+    @staticmethod
+    def _get_characters_before_terminator(
+            message: str, terminator: str
+    ) -> str:
+        """
+
+        :param message: The message to strip
+        :param terminator: The terminator at which to stop reading
+        :return: The characters preceding the first instance of the terminator
+        """
+        match = re.match(
+            r'^(.|\n)*?(?={0})'.format(terminator),
+            message
+        )
+
+        if match:
+            return match.group(0)
+        else:
+            return message

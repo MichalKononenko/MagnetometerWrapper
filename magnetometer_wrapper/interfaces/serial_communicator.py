@@ -2,7 +2,6 @@
 Describes how to work with RS232 ports. This interface extends the
 ``DeviceCommunicator`` to work with devices working over an RS232 port.
 """
-import serial
 from enum import Enum, unique
 import abc
 from .device_communicator import DeviceCommunicator
@@ -31,10 +30,10 @@ class SerialCommunicator(DeviceCommunicator, metaclass=abc.ABCMeta):
         using seven data bits. This means that the data_bits parameter should
         be set to ``SEVEN``.
         """
-        EIGHT = serial.EIGHTBITS
-        SEVEN = serial.SEVENBITS
-        SIX = serial.SIXBITS
-        FIVE = serial.FIVEBITS
+        EIGHT = "EIGHT"
+        SEVEN = "SEVEN"
+        SIX = "SIX"
+        FIVE = "FIVE"
 
     @unique
     class StopBits(Enum):
@@ -42,9 +41,9 @@ class SerialCommunicator(DeviceCommunicator, metaclass=abc.ABCMeta):
         The possible stop bits, to be used for marking the end of an RS232
         character.
         """
-        ONE = serial.STOPBITS_ONE
-        ONE_POINT_FIVE = serial.STOPBITS_ONE_POINT_FIVE
-        TWO = serial.STOPBITS_TWO
+        ONE = "ONE"
+        ONE_POINT_FIVE = "ONE_POINT_FIVE"
+        TWO = "TWO"
 
     @unique
     class ParityBits(Enum):
@@ -56,8 +55,8 @@ class SerialCommunicator(DeviceCommunicator, metaclass=abc.ABCMeta):
         the number of bits in a character even. The use of the parity bit
         protects against single bit-flip errors in transmission.
         """
-        ODD = serial.PARITY_ODD
-        EVEN = serial.PARITY_EVEN
+        ODD = "ODD"
+        EVEN = "EVEN"
 
     @property
     @abc.abstractmethod
