@@ -30,3 +30,12 @@ Serial Communicator
     :undoc-members:
     :special-members:
     :exclude-members: __dict__, __weakref__, __module__
+
+Lakeshore 475
+~~~~~~~~~~~~~
+
+.. automodule:: tests.unit.test_lakeshore_475
+    :members:
+    :undoc-members:
+    :special-members:
+    :exclude-members: __dict__, __weakref__, __module__
