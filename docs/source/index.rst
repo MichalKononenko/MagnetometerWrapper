@@ -12,6 +12,7 @@ Welcome to Magnetometer Wrapper's documentation!
 
    interfaces
    implementations
+   tests
 
 Indices and tables
 ==================
