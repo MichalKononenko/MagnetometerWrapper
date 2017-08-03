@@ -1,3 +1,7 @@
+"""
+Contains unit tests for
+:mod:`magnetometer_wrapper.serial_communicator`
+"""
 import unittest
 import unittest.mock as mock
 from serial import Serial
@@ -7,8 +11,13 @@ from hypothesis.strategies import text, sampled_from, integers, characters
 
 
 class TestSerialCommunicator(unittest.TestCase):
-
-    def setUp(self):
+    """
+    Base class for unit-testing of the module
+    """
+    def setUp(self) -> None:
+        """
+        Set up the environment for the test
+        """
         self.port = '/dev/ttyUSB0'
         self.serial_port = mock.MagicMock(spec=Serial)
         self.serial_constructor = mock.MagicMock(
@@ -20,13 +29,27 @@ class TestSerialCommunicator(unittest.TestCase):
 
 
 class TestOpen(TestSerialCommunicator):
-    def test_open(self):
+    """
+    Contains unit tests for the ``open`` method in the serial communicator
+    """
+    def test_open(self) -> None:
+        """
+        Checks that the mock serial library's ``open`` method is called when
+        the
+        """
         self.serial.open()
         self.assertTrue(self.serial_constructor().open.called)
 
 
 class TestIsOpen(TestSerialCommunicator):
-    def test_is_open(self):
+    """
+    Contains unit tests for the ``is_open`` method
+    """
+    def test_is_open(self) -> None:
+        """
+        Checks that the serial library's ``isOpen`` method is used to check
+        whether the port is open or not
+        """
         self.assertEqual(
             self.serial.is_open,
             self.serial_port.isOpen()
@@ -34,7 +57,14 @@ class TestIsOpen(TestSerialCommunicator):
 
 
 class TestRead(TestSerialCommunicator):
-    def test_read(self):
+    """
+    Contains unit tests for the ``read`` method
+    """
+    def test_read(self) -> None:
+        """
+        Checks that the ``read`` method returns a single character obtained
+        via the serial library's ``read`` method
+        """
         self.assertEqual(
             self.serial.read(),
             self.serial_port.read().decode('utf-8')
@@ -42,6 +72,11 @@ class TestRead(TestSerialCommunicator):
 
     @given(characters())
     def test_read_binary_input(self, character: str):
+        """
+
+        :param character: A randomly-generated character to be read from the
+            device
+        """
         self.serial_port.read = mock.MagicMock(
             return_value=character.encode('utf-8')
         )
@@ -49,6 +84,9 @@ class TestRead(TestSerialCommunicator):
 
 
 class TestWrite(TestSerialCommunicator):
+    """
+    Contains unit tests for the ``write`` method of the serial communicator
+    """
     @given(text())
     def test_write(self, message: str):
         self.serial.write(message)
