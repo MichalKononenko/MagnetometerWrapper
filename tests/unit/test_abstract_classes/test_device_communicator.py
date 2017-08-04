@@ -8,6 +8,7 @@ from magnetometer_wrapper.abstract_classes import AbstractDeviceCommunicator
 from hypothesis import given
 from hypothesis.strategies import text
 import logging
+import re
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -260,26 +261,62 @@ class TestIter(TestAbstractDeviceCommunicator):
     Contains unit tests for the ``__iter__`` generator, responsible for
     iteratively reading all the characters in the message
     """
-    def setUp(self) -> None:
+    @given(text(), text(min_size=1))
+    def test_iter(self, message: str, terminator: str) -> None:
         """
-        Set up a communicator with a realistic terminator
-        """
-        TestAbstractDeviceCommunicator.setUp(self)
-        self.communicator = self.ConcreteDeviceCommunicator(terminator='\r\n')
+        Tests that the iterator returns a random message to be read,
+        less any termination characters
 
-    @given(text())
-    def test_iter(self, read_data: str):
+        :param message: The message that the iterator should read, character
+            by character
         """
-
-        Test that iterating through the DeviceCommunicator will return all
-        the characters in the mock response, less any terminators.
-
-        :param read_data: The data to read from the fake device
-        """
-        data_to_read = read_data + self.communicator.termination_characters
+        data_to_read = message + terminator
+        self.communicator.termination_characters = terminator
         self.communicator.data_to_read = data_to_read
+
         with self.communicator:
-            data_from_device = ''.join(
-                char for char in self.communicator
-            )
-        self.assertEqual(data_to_read, data_from_device)
+            response = ''.join(char for char in self.communicator)
+
+        self.assertEqual(
+            self._get_expected_characters_that_were_read(
+                message, terminator
+            ), response
+        )
+
+    @staticmethod
+    def _get_expected_characters_that_were_read(
+            message: str, terminator: str
+    ) -> str:
+        """
+
+        Given a randomly-generated message and terminator from hypothesis,
+        get only the first characters in the message that come from the
+        terminator.
+
+        For example, if the generated message is ``Foo`` and the
+        terminator is ``\\n``, the message that will be read by the fake
+        "device" would be ``Foo\\n``, and the message that will be returned is
+        ``Foo``. This is where reading should stop. If it didn't, well,
+        that terminator wouldn't be much use as a terminator.
+
+        Now, for a more interesting case, consider a randomly-generated
+        message with the terminator inside it. Consider the message
+        ``\\r\\n`` and the terminator ``F\\r\\n``. In this case, the data to
+        be read by the fake "device: would be ``\\r\\n\\r\\n``. However,
+        we only want to read out ``F``, as the first instance of the
+        terminator stops there.
+
+        This method takes care of the required stripping.
+
+        I don't need to check whether the match is found because I append
+        the terminator to the message before checking it.
+
+        :param message: The message to read, provided by Hypothesis
+        :param terminator: The terminator at which to stop reading
+        :return: The characters preceding the first instance of the terminator
+        """
+        match = re.match(
+            r'^(.|\n)*?(?={0})'.format(re.escape(terminator)),
+            message + terminator
+        )
+        return match.group(0)

@@ -143,13 +143,15 @@ class AbstractDeviceCommunicator(
 
         :return: An iterator that can be used to repeatedly call the
             ``read`` method. This is the primary way in which strings are
-            read out from the device.
+            read out from the device. This iterator will not return the
+            termination characters
         """
-        last_characters_read = deque(maxlen=len(self.termination_characters))
-        while self._should_keep_reading(last_characters_read):
-            new_char = self.read()
-            last_characters_read.append(new_char)
-            yield new_char
+        lookahead_buffer = self._get_lookahead_buffer()
+
+        while self._should_keep_reading(lookahead_buffer):
+            last_read_character = lookahead_buffer.popleft()
+            lookahead_buffer.append(self.read())
+            yield last_read_character
 
     @property
     def _last_read_message_from_device(self) -> Optional[str]:
@@ -160,43 +162,27 @@ class AbstractDeviceCommunicator(
         """
         result_string = ''.join(iter(self))
         log.info('Read message %s from port %s', result_string, self)
-        result = self._everything_but_terminator_regex.match(
-            result_string
-        )
-        if result:
-            return result.group(0)
-        elif not result and result is not None:
-            raise IOError('Unable to find termination characters in result')
-        else:
-            raise IOError('Unable to find a match for the termination '
-                          'character regular expression. The result returned'
-                          'None')
+        return result_string
 
-    def _should_keep_reading(self, last_characters_read: deque) -> bool:
+    def _should_keep_reading(self, lookahead_buffer: deque) -> bool:
         """
 
-        :param last_characters_read: A queue containing the last few
+        :param lookahead_buffer: A queue containing the last few
             characters read by the iterator. This queue is as long as the
             string of termination characters. The contents of this queue are
             compared against the termination characters. If they match,
             the message is over and reading should stop
         :return: ``True` if reading should stop, otherwise ``False``.
         """
-        return tuple(last_characters_read) != tuple(
+        return tuple(lookahead_buffer) != tuple(
             self.termination_characters
         )
 
-    @property
-    def _everything_but_terminator_regex(self):
-        """
-
-        :return: A compiled regular expression that matches all the
-            characters in the message before the message terminator. This
-            regular expression can then be used to pick out the message
-        """
-        return re.compile(r'^(.|\n)*(?={0}$)'.format(
-            self.termination_characters)
-        )
+    def _get_lookahead_buffer(self) -> deque:
+        buffer = deque(maxlen=len(self.termination_characters))
+        for _ in range(len(self.termination_characters)):
+            buffer.append(self.read())
+        return buffer
 
     def __repr__(self) -> str:
         """
