@@ -261,18 +261,8 @@ class TestIter(TestAbstractDeviceCommunicator):
     Contains unit tests for the ``__iter__`` generator, responsible for
     iteratively reading all the characters in the message
     """
-    def setUp(self) -> None:
-        """
-        Set up a communicator with a realistic terminator
-        """
-        TestAbstractDeviceCommunicator.setUp(self)
-        self.terminator = '\r\n'
-        self.communicator = self.ConcreteDeviceCommunicator(
-            terminator=self.terminator
-        )
-
-    @given(text())
-    def test_iter(self, message: str) -> None:
+    @given(text(), text(min_size=1))
+    def test_iter(self, message: str, terminator: str) -> None:
         """
         Tests that the iterator returns a random message to be read,
         less any termination characters
@@ -280,7 +270,8 @@ class TestIter(TestAbstractDeviceCommunicator):
         :param message: The message that the iterator should read, character
             by character
         """
-        data_to_read = message + self.terminator
+        data_to_read = message + terminator
+        self.communicator.termination_characters = terminator
         self.communicator.data_to_read = data_to_read
 
         with self.communicator:
@@ -288,7 +279,7 @@ class TestIter(TestAbstractDeviceCommunicator):
 
         self.assertEqual(
             self._get_characters_before_terminator(
-                message, self.terminator
+                data_to_read, terminator
             ), response
         )
 
@@ -303,7 +294,7 @@ class TestIter(TestAbstractDeviceCommunicator):
         :return: The characters preceding the first instance of the terminator
         """
         match = re.match(
-            r'^(.|\n)*?(?={0})'.format(terminator),
+            r'^(.|\n)*?(?={0})'.format(re.escape(terminator)),
             message
         )
 
