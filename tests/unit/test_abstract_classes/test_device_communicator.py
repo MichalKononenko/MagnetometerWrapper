@@ -278,27 +278,45 @@ class TestIter(TestAbstractDeviceCommunicator):
             response = ''.join(char for char in self.communicator)
 
         self.assertEqual(
-            self._get_characters_before_terminator(
-                data_to_read, terminator
+            self._get_expected_characters_that_were_read(
+                message, terminator
             ), response
         )
 
     @staticmethod
-    def _get_characters_before_terminator(
+    def _get_expected_characters_that_were_read(
             message: str, terminator: str
     ) -> str:
         """
 
-        :param message: The message to strip
+        Given a randomly-generated message and terminator from hypothesis,
+        get only the first characters in the message that come from the
+        terminator.
+
+        For example, if the generated message is ``Foo`` and the
+        terminator is ``\\n``, the message that will be read by the fake
+        "device" would be ``Foo\\n``, and the message that will be returned is
+        ``Foo``. This is where reading should stop. If it didn't, well,
+        that terminator wouldn't be much use as a terminator.
+
+        Now, for a more interesting case, consider a randomly-generated
+        message with the terminator inside it. Consider the message
+        ``\\r\\n`` and the terminator ``F\\r\\n``. In this case, the data to
+        be read by the fake "device: would be ``\\r\\n\\r\\n``. However,
+        we only want to read out ``F``, as the first instance of the
+        terminator stops there.
+
+        This method takes care of the required stripping.
+
+        I don't need to check whether the match is found because I append
+        the terminator to the message before checking it.
+
+        :param message: The message to read, provided by Hypothesis
         :param terminator: The terminator at which to stop reading
         :return: The characters preceding the first instance of the terminator
         """
         match = re.match(
             r'^(.|\n)*?(?={0})'.format(re.escape(terminator)),
-            message
+            message + terminator
         )
-
-        if match:
-            return match.group(0)
-        else:
-            return message
+        return match.group(0)
